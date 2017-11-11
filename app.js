@@ -11,8 +11,8 @@ const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
 
 // Source data CSV
 const DATA_URL = {
-  BUILDINGS: 'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/buildings.json',  // eslint-disable-line
-  TRIPS: 'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/trips.json'  // eslint-disable-line
+  BUILDINGS: 'temp-data/buildings.json',  // eslint-disable-line
+  TRIPS: 'temp-data/trips.json'  // eslint-disable-line
 };
 
 class Root extends Component {
@@ -58,7 +58,7 @@ class Root extends Component {
   _animate() {
     const timestamp = Date.now();
     const loopLength = 1800;
-    const loopTime = 60000;
+    const loopTime = 6000;
 
     this.setState({
       time: ((timestamp % loopTime) / loopTime) * loopLength
