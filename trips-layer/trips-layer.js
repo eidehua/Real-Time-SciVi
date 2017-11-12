@@ -9,7 +9,8 @@ const defaultProps = {
   trailLength: 120,
   currentTime: 0,
   getPath: d => d.path,
-  getColor: d => d.color
+  getColor: d => d.color,
+  strokeWidth: 2
 };
 
 export default class TripsLayer extends Layer {
@@ -80,10 +81,11 @@ export default class TripsLayer extends Layer {
   }
 
   draw({uniforms}) {
-    const {trailLength, currentTime} = this.props;
+    const {trailLength, currentTime, strokeWidth} = this.props;
     this.state.model.render(Object.assign({}, uniforms, {
       trailLength,
-      currentTime
+      currentTime,
+      strokeWidth
     }));
   }
 

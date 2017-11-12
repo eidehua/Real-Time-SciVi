@@ -18,7 +18,7 @@ export default class DeckGLOverlay extends Component {
     return {
       longitude: -74,
       latitude: 40.72,
-      zoom: 13,
+      zoom: 4,
       maxZoom: 16,
       pitch: 45,
       bearing: 0
@@ -46,7 +46,7 @@ export default class DeckGLOverlay extends Component {
         getPath: d => d.segments,
         getColor: d => d.vendor === 0 ? [253, 128, 93] : [23, 184, 190],
         opacity: 0.3,
-        strokeWidth: 2,
+        strokeWidth: 5,
         trailLength,
         currentTime: time
       }),
