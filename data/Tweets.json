@@ -4099,5 +4099,5 @@
 {"date": 4367717, "coordinate": [32.7174209, -117.1627714], "airline": "Southwest", "sentiment": "negative", "confidence": 1.0},
 {"date": 4366752, "coordinate": [0, 0], "airline": "Southwest", "sentiment": "neutral", "confidence": 0.6659},
 {"date": 4373870, "coordinate": [29.9499323, -90.0701156], "airline": "Southwest", "sentiment": "negative", "confidence": 1.0},
-{"date": 4373453, "coordinate": [29.7589382, -95.3676974], "airline": "Southwest", "sentiment": "negative", "confidence": 0.6515},
+{"date": 4373453, "coordinate": [29.7589382, -95.3676974], "airline": "Southwest", "sentiment": "negative", "confidence": 0.6515}
 ]
