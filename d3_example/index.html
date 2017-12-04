@@ -2,8 +2,8 @@
 <head>
   <meta charset="utf-8">
   <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-  <!-- <script src="https://d3js.org/topojson.v1.min.js"></script> -->
-  <script src="topojson.v1.min.js"></script>
+  <script src="https://d3js.org/topojson.v1.js"></script>
+  <!--<script src="topojson.v1.min.js"></script>-->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
   <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.2/mapbox-gl.js'></script>
   <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.2/mapbox-gl.css' rel='stylesheet' />
@@ -36,7 +36,8 @@
       style: 'mapbox://styles/mapbox/dark-v9',
       // center: [-100,40],
       // zoom: 4.5,
-      center: [-0.1,51.5119112],
+      //center: [-0.1,51.5119112], //london
+      center:[-118.244476,34.054935], // la
       zoom: 13.5,
 
 
@@ -71,10 +72,11 @@
 
     // var url = "http://enjalot.github.io/wwsd/data/UK/london_stations.topojson";
     // var url = "london_stations.topojson";
-    var url = "london_stations_copy.topojson";
+    var url = "london_stations.topojson";
     // var url = "Tweets.json";
     d3.json(url, function(err, data) {
       var points = topojson.feature(data, data.objects.london_stations)
+      console.log(points)
       //console.log(data[0], getLL(data[0]), project(data[0]))
       var dots = svg
       .selectAll("circle.dot")
@@ -128,8 +130,7 @@
         })
         .duration(1000)
         // .each("end", render)    //individual point fading
-        .remove()
-        .attr("r", 10)
+
         // .attr("cy", 0)
 
       }
