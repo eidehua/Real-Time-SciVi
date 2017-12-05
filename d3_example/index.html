@@ -1,310 +1,325 @@
 <!DOCTYPE html>
 <head>
-  <meta charset="utf-8">
-  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-  <script src="https://d3js.org/topojson.v1.js"></script>
-  <!--<script src="topojson.v1.min.js"></script>-->
-  <script src="https://d3js.org/d3.v4.js"></script>
-  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.2/mapbox-gl.js'></script>
-  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.2/mapbox-gl.css' rel='stylesheet' />
+    <meta charset="utf-8">
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src="https://d3js.org/topojson.v1.js"></script>
+    <!--<script src="topojson.v1.min.js"></script>-->
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.2/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.2/mapbox-gl.css' rel='stylesheet' />
 
-  <style>
-    body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0; }
-    #map {
-      position:absolute;
-      width: 100%;
-      height: 100%;
-    }
-    svg {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-    }
-  </style>
+    <style>
+        body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0; }
+        #map {
+            position:absolute;
+            width: 100%;
+            height: 100%;
+        }
+        svg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        .year.label {
+            font: 500 20px "Helvetica Neue";
+            fill: #FFF;
+        }
+        .year.label.active {
+            fill: #aaa;
+        }
+
+    </style>
 </head>
 
 <body>
-  <div id="map"></div>
-  <script>
+    <div id="map"></div>
+    <script>
+        var dateStart = 4100000;
+        var dateEnd = 4808873;
+        var dateNow = 4100000;
+        mapboxgl.accessToken = 'pk.eyJ1IjoiZW5qYWxvdCIsImEiOiJjaWhtdmxhNTIwb25zdHBsejk0NGdhODJhIn0.2-F2hS_oTZenAWc0BMf_uw'
 
-    mapboxgl.accessToken = 'pk.eyJ1IjoiZW5qYWxvdCIsImEiOiJjaWhtdmxhNTIwb25zdHBsejk0NGdhODJhIn0.2-F2hS_oTZenAWc0BMf_uw'
-
-    //Setup mapbox-gl map
-    var map = new mapboxgl.Map({
-      container: 'map', // container id
-      // style: 'mapbox://styles/enjalot/cihmvv7kg004v91kn22zjptsc',
-      style: 'mapbox://styles/mapbox/dark-v9',
-      // center: [-100,40],
-      // zoom: 4.5,
-      //center: [-0.1,51.5119112], //london
-      center:[-118.244476,34.054935], // la
-      zoom: 4.5,
-
-
-    })
-    map.scrollZoom.enable()
-    map.addControl(new mapboxgl.NavigationControl());
-
-    function x(d) { return d.coordinate[0]; }
-    function y(d) { return d.coordinate[1]; }
-    function lngthenlat(d) { return [d.coordinate[1], d.coordinate[0]]} // converts a [lat, lng] to [lng, lat]
-    function radius(d) { return d.confidence*10; }
-    function color(d) {
-        if (d.sentiment == "positive") {
-            return "red";
-        } else if (d.sentiment == "negative") {
-            return "blue";
-        } else {
-            return "yellow";
+        //Setup mapbox-gl map
+        var map = new mapboxgl.Map({
+            container: 'map', // container id
+            // style: 'mapbox://styles/enjalot/cihmvv7kg004v91kn22zjptsc',
+            style: 'mapbox://styles/mapbox/dark-v9',
+            // center: [-100,40],
+            // zoom: 4.5,
+            //center: [-0.1,51.5119112], //london
+            center:[-3.5,40.054935], // spain
+            zoom: 1.5,
+        })
+        map.scrollZoom.enable()
+        map.addControl(new mapboxgl.NavigationControl());
+        function x(d) { return d.coordinate[0]; }
+        function y(d) { return d.coordinate[1]; }
+        function lngthenlat(d) { return [d.coordinate[1], d.coordinate[0]]} // converts a [lat, lng] to [lng, lat]
+        function radius(d) { return d.confidence*10; }
+        function color(d) {
+            if (d.sentiment == "positive") {
+                return "red";
+            } else if (d.sentiment == "negative") {
+                return "blue";
+            } else {
+                return "yellow";
+            }
         }
-    }
-    function key(d) { return d.name; }
+        function key(d) { return d.name; }
 
-    // Setup our svg layer that we can manipulate with d3
-    var container = map.getCanvasContainer()
-    var svg = d3.select(container).append("svg")
+        // Setup our svg layer that we can manipulate with d3
+        var container = map.getCanvasContainer()
+        var svg = d3.select(container).append("svg")
 
-    // we calculate the scale given mapbox state (derived from viewport-mercator-project's code)
-    // to define a d3 projection
-    function getD3() {
-      var bbox = document.body.getBoundingClientRect();
-      var center = map.getCenter();
-      var zoom = map.getZoom();
-      // 512 is hardcoded tile size, might need to be 256 or changed to suit your map config
-      var scale = (512) * 0.5 / Math.PI * Math.pow(2, zoom);
+        // we calculate the scale given mapbox state (derived from viewport-mercator-project's code)
+        // to define a d3 projection
+        function getD3() {
+            var bbox = document.body.getBoundingClientRect();
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            // 512 is hardcoded tile size, might need to be 256 or changed to suit your map config
+            var scale = (512) * 0.5 / Math.PI * Math.pow(2, zoom);
 
-      var d3projection = d3.geoMercator()
-        .center([center.lng, center.lat])
-        .translate([bbox.width/2, bbox.height/2])
-        .scale(scale);
+            var d3projection = d3.geoMercator()
+            .center([center.lng, center.lat])
+            .translate([bbox.width/2, bbox.height/2])
+            .scale(scale);
 
-      return d3projection;
-    }
+            return d3projection;
+        }
 
-    // calculate the original d3 projection
-    var d3Projection = getD3();
-    var path = d3.geoPath()
+        // calculate the original d3 projection
+        var d3Projection = getD3();
+        var path = d3.geoPath()
 
-    // var url = "http://enjalot.github.io/wwsd/data/UK/london_stations.topojson";
-    // var url = "london_stations.topojson";
-    var url = "london_stations.topojson";
-    // var url = "Tweets.json";
+        // var url = "http://enjalot.github.io/wwsd/data/UK/london_stations.topojson";
+        // var url = "london_stations.topojson";
+        var url = "london_stations.topojson";
+        // var url = "Tweets.json";
 
-    // Add the year label; the value is set on transition.
-    var label = svg.append("text")
-    .attr("class", "year label")
-    .attr("text-anchor", "end")
-    .attr("y", 500 - 24)
-    .attr("x", 1000)
-    .text(4100000);
+        // Add the year label; the value is set on tion.
+        var label = svg.append("text")
+        .attr("class", "year label")
+        .attr("text-anchor", "end")
+        .attr("y", 600)
+        .attr("x", 1200)
+        .text("");
 
-    var layer1 = svg.append("g")
+        var layer1 = svg.append("g")
 
-    function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
 
-    // waits for map to load
-    async function mapLoading() {
-      while(!map.loaded()) {
-        await sleep(1000)
+        // waits for map to load
+        async function mapLoading() {
+            while(!map.loaded()) {
+                await sleep(1000)
+            }
+        }
+
+        loadData()
+        async function loadData() {
+          await mapLoading()
+          // Load the data.
+          d3.json("tweets.json", function(tweets) {
+              // A bisector since many nation's data is sparsely-defined.
+              var bisect = d3.bisector(function(d) { return d[0]; });
+
+              // Add a dot per nation. Initialize the data at 1800, and set the colors.
+              var dot = layer1
+              .attr("class", "dots")
+              .selectAll(".dot")
+              .data(interpolateData(dateStart))
+              .enter().append("circle")
+              .attr("class", "dot")
+              .call(position)
+              .sort(order);
+
+              // Add a title.
+              dot.append("title")
+                  .text(function(d) { return d.name; });
+
+              // Add an overlay for the year label.
+              var box = label.node().getBBox();
+              console.log(box.x+ " "+box.y+ " "+box.width+ " "+box.height+ " ")
+              box.x = box.x-220;
+              box.width = box.width+220;
+              var overlay = svg.append("rect")
+              .attr("class", "overlay")
+              .attr("x", box.x)
+              .attr("y", box.y)
+              .attr("width", box.width)
+              .attr("height", box.height)
+              .attr("opacity", 0)
+              .on("mouseover", enableInteraction);
+
+              // Start a transition that interpolates the data based on year.
+              svg.transition()
+                  .duration(20000)
+                  .ease(d3.easeLinear)
+                  .tween("year", tweenYear)
+                  .on("end", enableInteraction);
+
+              // Positions the dots based on data.
+              function position(dot) {
+                  // do coloring
+                  d3Projection = getD3();
+                  path.projection(d3Projection)
+                  dot .attr("cx", function(d) { return d3Projection(lngthenlat(d))[0]; })
+                      .attr("cy", function(d) { return d3Projection(lngthenlat(d))[1]; })
+                      .attr("r", function(d) { return radius(d); })
+                      .style("fill", function(d) { return color(d); })
+                      .style('opacity', function(d) { return d.opacity;})
+                  ;
+              }
+
+              // Defines a sort order so that the smallest dots are drawn on top.
+              function order(a, b) {
+                  return radius(b) - radius(a);
+              }
+
+              // After the transition finishes, you can mouseover to change the year.
+              function enableInteraction() {
+                  var yearScale = d3.scaleLinear()
+                  .domain([dateStart, dateEnd])
+                  .range([box.x+10, box.x + box.width-10])
+                  .clamp(true);
+
+                  // Cancel the current transition, if any.
+                  svg.transition().duration(0);
+
+                  overlay
+                      .on("mouseover", mouseover)
+                      .on("mouseout", mouseout)
+                      .on("mousemove", mousemove)
+                      .on("touchmove", mousemove);
+
+                  map.on('zoom', function(e) {
+                      displayYear(dateNow);
+                  });
+                  map.on('drag', function(e) {
+                      displayYear(dateNow);
+                  });
+
+                  function mouseover() {
+                      label.classed("active", true);
+                  }
+
+                  function mouseout() {
+                      label.classed("active", false);
+                  }
+
+                  function mousemove() {
+                      displayYear(yearScale.invert(d3.mouse(this)[0]));
+                  }
+              }
+
+              // Tweens the entire chart by first tweening the year, and then the data.
+              // For the interpolated data, the dots and label are redrawn.
+              function tweenYear() {
+                  var year = d3.interpolateNumber(dateStart, dateEnd);
+                  return function(t) { displayYear(year(t)); };
+              }
+
+              // Updates the display to show the specified year.
+              function displayYear(year) {
+                  dateNow = year;
+                  dot.data(interpolateData(year)).call(position).sort(order);
+                  var t = year * 1000+ 1420092000000;
+                  var date = new Date(t);
+                  label.text(date.toUTCString());
+              }
+
+              // Interpolates the dataset for the given (fractional) year.
+              function interpolateData(year) {
+                  return tweets
+                      .filter(function(d){return (d.date > year-108873 && d.date < year+108873);})
+                      .map(function(d) {
+                      return {
+                          coordinate: d.coordinate,
+                          confidence: d.confidence,
+                          sentiment:d.sentiment,
+                          opacity: (108873 - Math.abs(d.date-year))/108873
+                      };
+                  });
+              }
+          });
       }
-    }
 
-    loadData()
-    async function loadData() {
-      await mapLoading()
-    // Load the data.
-    d3.json("tweets.json", function(tweets) {
-        // A bisector since many nation's data is sparsely-defined.
-        var bisect = d3.bisector(function(d) { return d[0]; });
-
-        // Add a dot per nation. Initialize the data at 1800, and set the colors.
-        var dot = layer1
-        .attr("class", "dots")
-        .selectAll(".dot")
-        .data(interpolateData(4100000))
-        .enter().append("circle")
-        .attr("class", "dot")
-        .call(position)
-        .sort(order);
-
-        // Add a title.
-        dot.append("title")
-            .text(function(d) { return d.name; });
-
-        // Add an overlay for the year label.
-        var box = label.node().getBBox();
-        console.log(box.x+ " "+box.y+ " "+box.width+ " "+box.height+ " ")
-        box.x = box.x-50;
-        box.width = box.width+50;
-        var overlay = svg.append("rect")
-        .attr("class", "overlay")
-        .attr("x", box.x)
-        .attr("y", box.y)
-        .attr("width", box.width)
-        .attr("height", box.height)
-        .on("mouseover", enableInteraction);
-
-
-        // Start a transition that interpolates the data based on year.
-        svg.transition()
-            .duration(20000)
-            .ease(d3.easeLinear)
-            .tween("year", tweenYear)
-            .on("end", enableInteraction);
-
-        // Positions the dots based on data.
-        function position(dot) {
-            // do coloring
-            d3Projection = getD3();
-            path.projection(d3Projection)
-            dot .attr("cx", function(d) { return d3Projection(lngthenlat(d))[0]; })
-                .attr("cy", function(d) { return d3Projection(lngthenlat(d))[1]; })
-                .attr("r", function(d) { return radius(d); })
-                .style("fill", function(d) { return color(d); })
-                .style('opacity', function(d) { return d.opacity;})
-            ;
-        }
-
-        // Defines a sort order so that the smallest dots are drawn on top.
-        function order(a, b) {
-            return radius(b) - radius(a);
-        }
-
-        // After the transition finishes, you can mouseover to change the year.
-        function enableInteraction() {
-            var yearScale = d3.scaleLinear()
-            .domain([4100000, 4808873])
-            .range([box.x - 10, box.x + box.width - 10])
-            .clamp(true);
-
-            // Cancel the current transition, if any.
-            svg.transition().duration(0);
-
-            overlay
-                .on("mouseover", mouseover)
-                .on("mouseout", mouseout)
-                .on("mousemove", mousemove)
-                .on("touchmove", mousemove);
-
-            function mouseover() {
-                label.classed("active", true);
-            }
-
-            function mouseout() {
-                label.classed("active", false);
-            }
-
-            function mousemove() {
-                displayYear(yearScale.invert(d3.mouse(this)[0]));
-            }
-        }
-
-        // Tweens the entire chart by first tweening the year, and then the data.
-        // For the interpolated data, the dots and label are redrawn.
-        function tweenYear() {
-            var year = d3.interpolateNumber(4100000, 4808873);
-            return function(t) { displayYear(year(t)); };
-        }
-
-        // Updates the display to show the specified year.
-        function displayYear(year) {
-            dot.data(interpolateData(year)).call(position).sort(order);
-            var date = new Date(year);
-
-            label.text(date.toLocaleTimeString());
-        }
-
-        // Interpolates the dataset for the given (fractional) year.
-        function interpolateData(year) {
-            return tweets
-                .filter(function(d){return (d.date > year-108873 && d.date < year+108873);})
-                .map(function(d) {
-                return {
-                    coordinate: d.coordinate,
-                    confidence: d.confidence,
-                    sentiment:d.sentiment,
-                    opacity: (108873 - Math.abs(d.date-year))/108873
-                };
-            });
-        }
-    });
-    }
-    // d3.json(url, function(err, data) {
-    //   var points = topojson.feature(data, data.objects.london_stations)
-    //   console.log(points)
-    //   //console.log(data[0], getLL(data[0]), project(data[0]))
-    //   var dots = svg
-    //   .selectAll("circle.dot")
-    //   .data(points.features);
-    //
-    //   var start_time = Date.now();
-    //
-    //   dots.enter().append("circle").classed("dot", true)
-    //   .attr("r", 1)
-    //   .style({
-    //     fill: "#0082a3",
-    //     "fill-opacity": 0.1,
-    //     stroke: "#004d60",
-    //     "stroke-width": 0
-    //   })
-    //   .transition().duration(1000)
-    //   .attr("r", 6)
-    //
-    //   function render() {
-    //     d3Projection = getD3();
-    //     path.projection(d3Projection)
-    //
-    //     dots
-    //     .attr({
-    //       cx: function(d) {
-    //         var x = d3Projection(d.geometry.coordinates)[0];
-    //         return x
-    //       },
-    //       cy: function(d) {
-    //         var y = d3Projection(d.geometry.coordinates)[1];
-    //         return y
-    //       },
-    //     });
-    //
-    //     dots
-    //     .transition()
-    //     // .delay(3500)
-    //     // .each("start", function() { d3.select(this).style({
-    //     //   fill: "#0082a3",
-    //     //   "fill-opacity": 0.1,
-    //     //   stroke: "#004d60",
-    //     //   "stroke-width": 0
-    //     // }); })
-    //     .delay(4000)
-    //     // .each("start", render)    //individual point showing
-    //     .style({
-    //       fill: "#0082a3",
-    //       "fill-opacity": 4,
-    //       stroke: "#004d60",
-    //       "stroke-width": 0
-    //     })
-    //     .duration(1000)
-    //     // .each("end", render)    //individual point fading
-    //
-    //     // .attr("cy", 0)
-    //
-    //   }
-    //
-    //   // re-render our visualization whenever the view changes
-    //   map.on("viewreset", function() {
-    //     render()
-    //   })
-    //   map.on("move", function() {
-    //     render()
-    //   })
-    //
-    //   // render our initial visualization
-    //   render()
-    // })
+        // d3.json(url, function(err, data) {
+        //   var points = topojson.feature(data, data.objects.london_stations)
+        //   console.log(points)
+        //   //console.log(data[0], getLL(data[0]), project(data[0]))
+        //   var dots = svg
+        //   .selectAll("circle.dot")
+        //   .data(points.features);
+        //
+        //   var start_time = Date.now();
+        //
+        //   dots.enter().append("circle").classed("dot", true)
+        //   .attr("r", 1)
+        //   .style({
+        //     fill: "#0082a3",
+        //     "fill-opacity": 0.1,
+        //     stroke: "#004d60",
+        //     "stroke-width": 0
+        //   })
+        //   .transition().duration(1000)
+        //   .attr("r", 6)
+        //
+        //   function render() {
+        //     d3Projection = getD3();
+        //     path.projection(d3Projection)
+        //
+        //     dots
+        //     .attr({
+        //       cx: function(d) {
+        //         var x = d3Projection(d.geometry.coordinates)[0];
+        //         return x
+        //       },
+        //       cy: function(d) {
+        //         var y = d3Projection(d.geometry.coordinates)[1];
+        //         return y
+        //       },
+        //     });
+        //
+        //     dots
+        //     .transition()
+        //     // .delay(3500)
+        //     // .each("start", function() { d3.select(this).style({
+        //     //   fill: "#0082a3",
+        //     //   "fill-opacity": 0.1,
+        //     //   stroke: "#004d60",
+        //     //   "stroke-width": 0
+        //     // }); })
+        //     .delay(4000)
+        //     // .each("start", render)    //individual point showing
+        //     .style({
+        //       fill: "#0082a3",
+        //       "fill-opacity": 4,
+        //       stroke: "#004d60",
+        //       "stroke-width": 0
+        //     })
+        //     .duration(1000)
+        //     // .each("end", render)    //individual point fading
+        //
+        //     // .attr("cy", 0)
+        //
+        //   }
+        //
+        //   // re-render our visualization whenever the view changes
+        //   map.on("viewreset", function() {
+        //     render()
+        //   })
+        //   map.on("move", function() {
+        //     render()
+        //   })
+        //
+        //   // render our initial visualization
+        //   render()
+        // })
 
 
-  </script>
-
+    </script>
 </body>
