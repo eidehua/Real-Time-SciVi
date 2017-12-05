@@ -50,11 +50,11 @@
     function lngthenlat(d) { return [d.coordinate[1], d.coordinate[0]]} // converts a [lat, lng] to [lng, lat]
     function radius(d) { return d.confidence*10; }
     function color(d) {
-        if(d.sentiment == "positive"){
+        if (d.sentiment == "positive") {
             return "red";
-        }else if(d.sentiment == "negative"){
+        } else if (d.sentiment == "negative") {
             return "blue";
-        }else{
+        } else {
             return "yellow";
         }
     }
@@ -99,6 +99,21 @@
     .text(4100000);
 
     var layer1 = svg.append("g")
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // waits for map to load
+    async function mapLoading() {
+      while(!map.loaded()) {
+        await sleep(1000)
+      }
+    }
+
+    loadData()
+    async function loadData() {
+      await mapLoading()
     // Load the data.
     d3.json("tweets.json", function(tweets) {
         // A bisector since many nation's data is sparsely-defined.
@@ -130,6 +145,7 @@
         .attr("width", box.width)
         .attr("height", box.height)
         .on("mouseover", enableInteraction);
+
 
         // Start a transition that interpolates the data based on year.
         svg.transition()
@@ -214,8 +230,7 @@
             });
         }
     });
-
-
+    }
     // d3.json(url, function(err, data) {
     //   var points = topojson.feature(data, data.objects.london_stations)
     //   console.log(points)
@@ -291,4 +306,5 @@
 
 
   </script>
+
 </body>
