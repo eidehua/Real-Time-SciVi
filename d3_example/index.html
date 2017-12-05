@@ -20,6 +20,14 @@
       width: 100%;
       height: 100%;
     }
+       .year.label {
+            font: 500 20px "Helvetica Neue";
+            fill: #FFF;
+        }
+      .year.label.active {
+            fill: #aaa;
+        }
+
   </style>
 </head>
 
@@ -100,6 +108,7 @@
 
     var layer1 = svg.append("g")
     // Load the data.
+    var dot;
     d3.json("tweets.json", function(tweets) {
         // A bisector since many nation's data is sparsely-defined.
         var bisect = d3.bisector(function(d) { return d[0]; });
@@ -129,6 +138,7 @@
         .attr("y", box.y)
         .attr("width", box.width)
         .attr("height", box.height)
+        .attr("opacity", 0)
         .on("mouseover", enableInteraction);
 
         // Start a transition that interpolates the data based on year.
