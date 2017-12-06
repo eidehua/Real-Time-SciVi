@@ -103,7 +103,8 @@
         .attr("text-anchor", "end")
         .attr("y", 600)
         .attr("x", 1200)
-        .text("");
+        .text("\u2800"); // HACK: unicode braille blank space works to keep the overlay slider hidden until map load, and working after map load
+        // using just "" or any number of blanks fails for some reason... (other characters or numbers work just fine)
 
         var layer1 = svg.append("g")
 
