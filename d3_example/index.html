@@ -56,7 +56,7 @@
         function x(d) { return d.coordinate[0]; }
         function y(d) { return d.coordinate[1]; }
         function lngthenlat(d) { return [d.coordinate[1], d.coordinate[0]]} // converts a [lat, lng] to [lng, lat]
-        function radius(d) { return d.confidence*10; }
+        function radius(d) { return d.confidence*3*(map.getZoom()); }
         function color(d) {
             if (d.sentiment == "positive") {
                 return "#2be52b";
