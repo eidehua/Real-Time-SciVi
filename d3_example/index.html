@@ -234,16 +234,15 @@
 
               // Interpolates the dataset for the given (fractional) year.
               function interpolateData(year) {
-                  return tweets
-                      .filter(function(d){return (d.date > year-108873 && d.date < year+108873);})
-                      .map(function(d) {
-                      return {
-                          coordinate: d.coordinate,
-                          confidence: d.confidence,
-                          sentiment:d.sentiment,
-                          opacity: (108873 - Math.abs(d.date-year))/108873
-                      };
-                  });
+                  return tweets.map(function(d) {
+                    return {
+                        airline: d.airline,
+                        coordinate: d.coordinate,
+                        confidence: d.confidence,
+                        sentiment:d.sentiment,
+                        opacity: (d.date > year + 108873 || d.date < year - 108873)? 0:(108873 - Math.abs(d.date-year))/108873
+                    };
+                });
               }
           });
       }
