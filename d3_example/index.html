@@ -7,6 +7,7 @@
     <script src="https://d3js.org/d3.v4.js"></script>
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.2/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.2/mapbox-gl.css' rel='stylesheet' />
+    <link href='https://www.mapbox.com/base/latest/base.css' rel='stylesheet' />
 
     <style>
         body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0; }
@@ -207,7 +208,10 @@
                   map.on('drag', function(e) {
                       displayYear(dateNow);
                   });
-
+                document.getElementById("va").addEventListener('change',function(){displayYear(dateNow);});
+                document.getElementById("un").addEventListener('change',function(){displayYear(dateNow);})
+                document.getElementById("sw").addEventListener('change',function(){displayYear(dateNow);})
+                document.getElementById("all").addEventListener('click',function(){displayYear(dateNow);})
                   function mouseover() {
                       label.classed("active", true);
                   }
@@ -239,7 +243,7 @@
 
               // Interpolates the dataset for the given (fractional) year.
               function interpolateData(year) {
-                  return tweets.map(function(d) {
+                dataReturn = tweets.map(function(d) {
                     return {
                         airline: d.airline,
                         coordinate: d.coordinate,
@@ -247,7 +251,26 @@
                         sentiment:d.sentiment,
                         opacity: (d.date > year + 108873 || d.date < year - 108873)? 0:(108873 - Math.abs(d.date-year))/108873
                     };
-                });
+                }); 
+                if(!document.getElementById("va").checked){
+                    dataReturn.map(function(d){
+                        if(d.airline == "Virgin America") d.opacity = 0;
+                        return d;
+                    });
+                }
+                if(!document.getElementById("un").checked){
+                    dataReturn.map(function(d){
+                        if(d.airline == "United") d.opacity = 0;
+                        return d;
+                    });
+                }
+                if(!document.getElementById("sw").checked){
+                    dataReturn.map(function(d){
+                        if(d.airline == "Southwest") d.opacity = 0;
+                        return d;
+                    });
+                }
+                return dataReturn;
               }
           });
       }
@@ -324,7 +347,25 @@
         //   // render our initial visualization
         //   render()
         // })
-
+        
 
     </script>
+    <script>
+        function toggle(source) {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = 'checked';
+            }
+        }
+    </script>
+    <div class='checkbox pill dark clearfix'>
+        <input type='button' id='all' onclick="toggle(this);">
+        <label for='all' class='button'>Select All</label>
+        <input type='checkbox' id='va' checked='checked'>
+        <label for='va' class='button icon check'>Virgin America</label>
+        <input type='checkbox' id='un' checked='checked'>
+        <label for='un' class='button icon check'>United</label>
+        <input type='checkbox' id='sw' checked='checked'>
+        <label for='sw' class='button icon check'>Southwest</label>
+    </div>
 </body>
