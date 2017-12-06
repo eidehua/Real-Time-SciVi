@@ -123,7 +123,12 @@
         async function loadData() {
           await mapLoading()
           // Load the data.
-          d3.json("tweets.json", function(tweets) {
+          d3.json("Tweets_withMessage3.json", function(error, tweets) {
+
+            if(error)
+            {
+              return console.error(error);
+            }
               // A bisector since many nation's data is sparsely-defined.
               var bisect = d3.bisector(function(d) { return d[0]; });
 
