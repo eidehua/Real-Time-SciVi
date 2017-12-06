@@ -59,11 +59,11 @@
         function radius(d) { return d.confidence*10; }
         function color(d) {
             if (d.sentiment == "positive") {
-                return "red";
+                return "#2be52b";
             } else if (d.sentiment == "negative") {
-                return "blue";
+                return "#a32d2d";
             } else {
-                return "yellow";
+                return "#c4b925";
             }
         }
         function key(d) { return d.name; }
@@ -253,7 +253,7 @@
                         sentiment:d.sentiment,
                         opacity: (d.date > year + 108873 || d.date < year - 108873)? 0:(108873 - Math.abs(d.date-year))/108873
                     };
-                }); 
+                });
                 if(!document.getElementById("va").checked){
                     dataReturn.map(function(d){
                         if(d.airline == "Virgin America") d.opacity = 0;
@@ -278,7 +278,7 @@
                         return d;
                     });
                 }
-                  
+
                 if(!document.getElementById("ua").checked){
                     dataReturn.map(function(d){
                         if(d.airline == "US Airways") d.opacity = 0;
@@ -362,7 +362,7 @@
         //   // render our initial visualization
         //   render()
         // })
-        
+
 
     </script>
     <script>
