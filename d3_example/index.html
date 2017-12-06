@@ -97,13 +97,19 @@
         // var url = "london_stations.topojson";
         var url = "london_stations.topojson";
         // var url = "Tweets.json";
+        var width = window.innerWidth
+        || document.documentElement.clientWidth
+        || document.body.clientWidth;
 
+        var height = window.innerHeight
+        || document.documentElement.clientHeight
+        || document.body.clientHeight;
         // Add the year label; the value is set on tion.
         var label = svg.append("text")
         .attr("class", "year label")
         .attr("text-anchor", "end")
-        .attr("y", 600)
-        .attr("x", 1200)
+        .attr("y", height - 100)
+        .attr("x", width - 400)
         .text("\u2800"); // HACK: unicode braille blank space works to keep the overlay slider hidden until map load, and working after map load
         // using just "" or any number of blanks fails for some reason... (other characters or numbers work just fine)
 
@@ -176,13 +182,26 @@
                   dot .attr("cx", function(d) { return d3Projection(lngthenlat(d))[0]; })
                       .attr("cy", function(d) { return d3Projection(lngthenlat(d))[1]; })
                       .attr("r", function(d) { return radius(d); })
+                      .attr("sentiment", function(d) { return d.sentiment})
+                      .attr("message", function(d) { return d.message})
                       .style("fill", function(d) { return color(d); })
                       .style('opacity', function(d) { return d.opacity;})
                   ;
+                  // update dot title, because it might refer to an older dot position (I guess because dots get reused)
+                  dot.select("title")
+                      .text(function(d) { return d.message; });
               }
 
               // Defines a sort order so that the smallest dots are drawn on top.
+              // we need to also include the fact that opacity > 0 needs to show up above those below it
               function order(a, b) {
+                  if (a.opacity == 0) {
+                      return -1 // b should be drawn on top (so draw a first)
+                  }
+                  if (b.opacity == 0) {
+                    return 1 // b should be drawn on bottom
+                  }
+                  // if b is bigger, should be drawn below, so return positive (draw a after)
                   return radius(b) - radius(a);
               }
 
