@@ -124,7 +124,7 @@
         async function loadData() {
           await mapLoading()
           // Load the data.
-          d3.json("Tweets_withMessage3.json", function(error, tweets) {
+          d3.json("Tweets_slim.json", function(error, tweets) {
 
             if(error)
             {
@@ -145,7 +145,7 @@
 
               // Add a title.
               dot.append("title")
-                  .text(function(d) { return d.name; });
+                  .text(function(d) { return d.message; });
 
               // Add an overlay for the year label.
               var box = label.node().getBBox();
@@ -163,7 +163,7 @@
 
               // Start a transition that interpolates the data based on year.
               svg.transition()
-                  .duration(20000)
+                  .duration(5000)
                   .ease(d3.easeLinear)
                   .tween("year", tweenYear)
                   .on("end", enableInteraction);
@@ -250,6 +250,7 @@
                         airline: d.airline,
                         coordinate: d.coordinate,
                         confidence: d.confidence,
+                        message: d.message,
                         sentiment:d.sentiment,
                         opacity: (d.date > year + 108873 || d.date < year - 108873)? 0:(108873 - Math.abs(d.date-year))/108873
                     };
@@ -290,80 +291,6 @@
           });
       }
 
-        // d3.json(url, function(err, data) {
-        //   var points = topojson.feature(data, data.objects.london_stations)
-        //   console.log(points)
-        //   //console.log(data[0], getLL(data[0]), project(data[0]))
-        //   var dots = svg
-        //   .selectAll("circle.dot")
-        //   .data(points.features);
-        //
-        //   var start_time = Date.now();
-        //
-        //   dots.enter().append("circle").classed("dot", true)
-        //   .attr("r", 1)
-        //   .style({
-        //     fill: "#0082a3",
-        //     "fill-opacity": 0.1,
-        //     stroke: "#004d60",
-        //     "stroke-width": 0
-        //   })
-        //   .transition().duration(1000)
-        //   .attr("r", 6)
-        //
-        //   function render() {
-        //     d3Projection = getD3();
-        //     path.projection(d3Projection)
-        //
-        //     dots
-        //     .attr({
-        //       cx: function(d) {
-        //         var x = d3Projection(d.geometry.coordinates)[0];
-        //         return x
-        //       },
-        //       cy: function(d) {
-        //         var y = d3Projection(d.geometry.coordinates)[1];
-        //         return y
-        //       },
-        //     });
-        //
-        //     dots
-        //     .transition()
-        //     // .delay(3500)
-        //     // .each("start", function() { d3.select(this).style({
-        //     //   fill: "#0082a3",
-        //     //   "fill-opacity": 0.1,
-        //     //   stroke: "#004d60",
-        //     //   "stroke-width": 0
-        //     // }); })
-        //     .delay(4000)
-        //     // .each("start", render)    //individual point showing
-        //     .style({
-        //       fill: "#0082a3",
-        //       "fill-opacity": 4,
-        //       stroke: "#004d60",
-        //       "stroke-width": 0
-        //     })
-        //     .duration(1000)
-        //     // .each("end", render)    //individual point fading
-        //
-        //     // .attr("cy", 0)
-        //
-        //   }
-        //
-        //   // re-render our visualization whenever the view changes
-        //   map.on("viewreset", function() {
-        //     render()
-        //   })
-        //   map.on("move", function() {
-        //     render()
-        //   })
-        //
-        //   // render our initial visualization
-        //   render()
-        // })
-
-
     </script>
     <script>
         function toggle(source) {
@@ -383,7 +310,7 @@
         <input type='checkbox' id='sw' checked='checked'>
         <label for='sw' class='button icon check'>Southwest</label>
         <input type='checkbox' id='dt' checked='checked'>
-        <label for='dt' class='button icon check'>Dalta</label>
+        <label for='dt' class='button icon check'>Delta</label>
         <input type='checkbox' id='ua' checked='checked'>
         <label for='ua' class='button icon check'>US Airways</label>
     </div>
